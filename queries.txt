@@ -1,0 +1,87 @@
+----View 1: Count the randomArrayItems
+{
+   "_id": "_design/1",
+   "_rev": "1-a8c87fec8c2ab8006208708153a9db65",
+   "language": "javascript",
+   "views": {
+       "1": {
+           "map": "function(doc) {\n  doc.doc.data.forEach(function(element){\n    emit(element.randomArrayItem,1);\n  });\n}",
+           "reduce": "function(key, value, rereduce) {\n  if (rereduce) {\n    return sum(value);\n  } else {\n    return value.length;\n  }\n}"
+       }
+   }
+}
+
+
+
+----View 2: Names of people with max age by gender and isActive
+{
+   "_id": "_design/2",
+   "_rev": "1-51c0f2854e77fcadc8c8e6bb7f65bd9e",
+   "language": "javascript",
+   "views": {
+       "2": {
+           "map": "function(doc) {\n  doc.doc.data.forEach(function(element){\n    emit([element.gender, element.isActive], [element.age, element.name]);\n  });\n}",
+           "reduce": "function(key, value){\n  result = {};\n  max = 0;\n \n  value.forEach(function(element){\n    if(element[0] > max){\n      max = element[0];\n      result = {\n         age:  element[0],\n         name: [element[1]]\n      };\n    }else if(element[0] == max){\n      result.name.push(element[1]);\n    }\n  });\n  return result;\n}"
+       }
+   }
+}
+
+
+
+----View 3: A count of the people by tags, that is, count all the people with the given value in the tags array.
+{
+   "_id": "_design/3",
+   "_rev": "1-b9d6467905d801ca8f74e1bf596471e0",
+   "language": "javascript",
+   "views": {
+       "3": {
+           "map": "function(doc) {\n  doc.doc.data.forEach(function(element){\n  \tif(element.tags.length > 0) {\n\t   element.tags.forEach(function(item){\n\t\temit(item);\n\t   });       \n  \t}\n  });\n}",
+           "reduce": "function(key, value, rereduce) {\n  if (rereduce) {\n    return sum(value);\n  } else {\n    return value.length;\n  }\n}\nfunction(key, value, rereduce) {\n  if (rereduce) {\n    return sum(value);\n  } else {\n    return value.length;\n  }\n}"
+       }
+   }
+}
+
+
+
+----View 4: The average age of people by company.
+{
+   "_id": "_design/4",
+   "_rev": "1-fe9a32e7f1cf46c0e095cc2aeeccf42c",
+   "language": "javascript",
+   "views": {
+       "4": {
+           "map": "function(doc) {\n  doc.doc.data.forEach(function(element){\n    emit(element.company, element.age);\n  });\n}",
+           "reduce": "function(key, value){\n  avg = 0;\n  value.forEach(function(element){\n    avg += element;\n  });\n  result = avg/value.length\n  return result.toFixed(1);\n}"
+       }
+   }
+}
+
+
+
+----View 5: The JSON of the lattitude, longitude, and address of each employee that has a lattitude of more than 80.
+{
+   "_id": "_design/5",
+   "_rev": "2-87e5f39bac026a0273ce160ce03e7edc",
+   "language": "javascript",
+   "views": {
+       "5": {
+           "map": "function(doc) {\n  doc.doc.data.forEach(function(element){\n        if(element.latitude > 80){\n    \t\temit(element.id, [element.latitude, element.longitude, element.address]);\n        }\n  });\n}",
+           "reduce": "function(key, value){\n  result = {};\n  limit = 80;\n \n  value.forEach(function(element){\n     if(element[0] > limit){\n \tresult = {\n                  latitude:  element[0],\n                  longitude: element[1],\n                  address: element[2]\n        };\n     }else if(element[0] == limit){\n      result.name.push(element[1]);\n    }\n  });\n  return result;\n}"
+       }
+   }
+}
+
+
+
+----View 6: Names of people and their frineds that start with the letter "J" if they have at least one friend whose name starts with the letter "J".
+{
+   "_id": "_design/6",
+   "_rev": "1-76c333fbd325781df15047bea1aa1d2f",
+   "language": "javascript",
+   "views": {
+       "6": {
+           "map": "function(doc) {\n  doc.doc.data.forEach(function(element){\n    element.friends.forEach(function(friend){\n     if(friend.name[0].toLowerCase() == \"j\"){\n        emit(element.name, friend.name);\n     }\n    });\n\n  });\n}"
+       }
+   }
+}
+
